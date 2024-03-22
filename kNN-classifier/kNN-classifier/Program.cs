@@ -1,7 +1,5 @@
 ﻿using System.Globalization;
-using System.Text.RegularExpressions;
 using kNN_classifier;
-using Microsoft.VisualBasic;
 
 public class Program
 {
@@ -16,6 +14,7 @@ public class Program
 
         double allRecords = testSet.Count;
         double correctRecord = 0;
+
         foreach (var testData in testSet)
         {
             SelectTypeForRecord(testData, trainSet, k);
@@ -28,9 +27,31 @@ public class Program
         Console.WriteLine("Vectors;CorrectType;PredictedType");
         foreach (var data in testSet)
         {
-            Console.WriteLine(data.Vectors + ";" + data.CorrectType + ";" + data.PredictedType);
+            PrintData(data);
         }
         Console.WriteLine("Accuracy: " + correctRecord/allRecords * 100);
+
+        string? answer;
+        do
+        {
+            Console.WriteLine("Would you like to add a new record? (yes/no)");
+            answer = Console.ReadLine();
+            if (answer == "no") { Environment.Exit(0); }
+            Console.WriteLine("Enter record");
+            String? record = Console.ReadLine();
+            Data dataRecord = new Data(GetVectorsFromLineWithoutType(record));
+            SelectTypeForRecord(dataRecord, trainSet, k);
+            PrintData(dataRecord);
+        } while (answer == "yes");
+    }
+
+    private static void PrintData(Data data)
+    {
+        foreach (var vector in data.Vectors)
+        {
+            Console.Write(vector + ";");
+        }
+        Console.WriteLine(data.CorrectType + ";" + data.PredictedType);
     }
 
     private static string ReadTrainingFileFromUser()
@@ -76,29 +97,7 @@ public class Program
     private static int ReadKFromUser()
     {
         Console.WriteLine("Enter k");
-        string? k = Console.ReadLine();
-        
-        try
-        {
-            if (k == null)
-            {
-                throw new Exception("k can't be null");
-            }
-            
-            const string pattern = @"^-?[0-9]+(?:\.[0-9]+)?$"; 
-            var regex = new Regex(pattern);
-            
-            if (!regex.IsMatch(k))
-            {
-                throw new Exception("k must be a number");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            Environment.Exit(1);
-        }
-        
+        string k = Console.ReadLine();
         return int.Parse(k);
     }
 
@@ -108,17 +107,18 @@ public class Program
         var lines = File.ReadLines(fileName);
         foreach (var line in lines)
         {
-            string type = GetTypeFromLine(line);
+            string? type = GetTypeFromLine(line);
             List<string> vectors = GetVectorsFromLine(line);
             Data data = new Data(vectors, type);
+            returnList.Add(data);
         }
 
         return returnList;
     }
 
-    private static string GetTypeFromLine(string line)
+    private static string? GetTypeFromLine(string line)
     {
-        string[] lineSplit = line.Split(";");
+        string?[] lineSplit = line.Split(";");
         return lineSplit[^1];
     }
 
@@ -140,7 +140,7 @@ public class Program
         double sum = 0;
         for (int i = 0; i < v1.Count - 1; i++)
         {
-            sum += Math.Pow(double.Parse(v1.ElementAt(i)) - double.Parse(v2.ElementAt(i)), 2);
+            sum += Math.Pow(double.Parse(v1.ElementAt(i), CultureInfo.InvariantCulture) - double.Parse(v2.ElementAt(i), CultureInfo.InvariantCulture), 2);
         }
 
         return Math.Sqrt(sum);
@@ -155,12 +155,12 @@ public class Program
         
         trainSet.Sort();
 
-        List<string> possibleTypes = new List<string>();
+        List<string?> possibleTypes = new List<string?>();
         for (int i = 0; i < k; i++)
         {
             possibleTypes.Add(trainSet.ElementAt(i).CorrectType);
         }
-
+        
         Dictionary<string, int> countedTypes = new Dictionary<string, int>();
         foreach (var type in possibleTypes)
         {
@@ -175,7 +175,7 @@ public class Program
         }
 
         int max = 0;
-        string maxType = null;
+        string? maxType = null;
         foreach (var key in countedTypes.Keys)
         {
             if (countedTypes[key] > max)
