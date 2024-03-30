@@ -70,7 +70,7 @@ public class Program
 
     private static string ReadTestFileFromUser()
     {
-        Console.WriteLine("Enter file name for training set");
+        Console.WriteLine("Enter file name for test set");
         var testFile = Console.ReadLine();
         try
         {
@@ -112,7 +112,7 @@ public class Program
 
     private static string GetTypeFromLine(string line)
     {
-        string?[] lineSplit = line.Split(";");
+        string[] lineSplit = line.Split(";");
         return lineSplit[^1];
     }
 
