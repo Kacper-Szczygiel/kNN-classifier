@@ -11,17 +11,10 @@ public class Program
 
         List<Data> trainSet = FileToList(trainSetName);
         List<Data> testSet = FileToList(testSetName);
-
-        double allRecords = testSet.Count;
-        double correctRecord = 0;
-
+        
         foreach (var testData in testSet)
         {
             SelectTypeForRecord(testData, trainSet, k);
-            if (testData.PredictedType == testData.CorrectType)
-            {
-                correctRecord++;
-            }
         }
         
         Console.WriteLine("Vectors;CorrectType;PredictedType");
@@ -29,16 +22,17 @@ public class Program
         {
             PrintData(data);
         }
-        Console.WriteLine("Accuracy: " + correctRecord/allRecords * 100);
+        
+        Console.WriteLine("Accuracy: {0:P2}.",CalculateAccuracy(testSet));
 
-        string? answer;
+        string answer;
         do
         {
             Console.WriteLine("Would you like to add a new record? (yes/no)");
             answer = Console.ReadLine();
             if (answer == "no") { Environment.Exit(0); }
             Console.WriteLine("Enter record");
-            String? record = Console.ReadLine();
+            String record = Console.ReadLine();
             Data dataRecord = new Data(GetVectorsFromLineWithoutType(record));
             SelectTypeForRecord(dataRecord, trainSet, k);
             PrintData(dataRecord);
@@ -116,7 +110,7 @@ public class Program
         return returnList;
     }
 
-    private static string? GetTypeFromLine(string line)
+    private static string GetTypeFromLine(string line)
     {
         string?[] lineSplit = line.Split(";");
         return lineSplit[^1];
@@ -186,5 +180,21 @@ public class Program
         }
 
         testData.PredictedType = maxType;
+    }
+
+    private static double CalculateAccuracy(List<Data> testSet)
+    {
+        double allRecords = testSet.Count;
+        double correctRecord = 0;
+        
+        foreach (var testData in testSet)
+        {
+            if (testData.PredictedType == testData.CorrectType)
+            {
+                correctRecord++;
+            }
+        }
+
+        return correctRecord / allRecords;
     }
 }
