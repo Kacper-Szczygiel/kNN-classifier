@@ -50,7 +50,15 @@ public class Program
         {
             Console.Write(vector + ";");
         }
-        Console.WriteLine(data.CorrectType + ";" + data.PredictedType);
+        
+        if (data.CorrectType is null)
+        {
+            Console.WriteLine(data.PredictedType);
+        }
+        else
+        {
+            Console.WriteLine(data.CorrectType + ";" + data.PredictedType);
+        }
     }
 
     private static string ReadTrainingFileFromUser()
