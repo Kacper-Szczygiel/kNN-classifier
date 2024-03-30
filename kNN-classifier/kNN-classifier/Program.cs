@@ -18,10 +18,7 @@ public class Program
         }
         
         Console.WriteLine("Vectors;CorrectType;PredictedType");
-        foreach (var data in testSet)
-        {
-            PrintData(data);
-        }
+        PrintList(testSet);
         
         Console.WriteLine("Accuracy: {0:P2}.",CalculateAccuracy(testSet));
 
@@ -37,6 +34,14 @@ public class Program
             SelectTypeForRecord(dataRecord, trainSet, k);
             PrintData(dataRecord);
         } while (answer == "yes");
+    }
+
+    private static void PrintList(List<Data> list)
+    {
+        foreach (var data in list)
+        {
+            PrintData(data);
+        }
     }
 
     private static void PrintData(Data data)
